@@ -1,0 +1,55 @@
+version: '3.4'
+
+services:
+  auth:
+    image: onboardingnoissa.azurecr.io/auth
+    build:
+      context: .
+      dockerfile: auth/Dockerfile
+    #ports:     
+    #  - "8001:80"
+    #  - "9001:443"
+  auth-dapr:
+    image: "daprio/daprd:latest"
+    command: [ "./daprd", "-app-id", "auth", "-app-port", "80" ]
+    depends_on:
+      - auth
+    network_mode: "service:auth"
+
+  business:
+    image: onboardingnoissa.azurecr.io/business
+    build:
+      context: .
+      dockerfile: business/Dockerfile
+    #ports:     
+    #  - "8011:80"
+    #  - "9011:443"
+  business-dapr:
+    image: "daprio/daprd:latest"
+    command: [ "./daprd", "-app-id", "business", "-app-port", "80" ]
+    depends_on:
+      - business
+    network_mode: "service:business"
+
+  operation:
+    image: onboardingnoissa.azurecr.io/operation
+    build:
+      context: .
+      dockerfile: operation/Dockerfile
+    #ports:     
+    #  - "8021:80"
+    #  - "9021:443"
+  operation-dapr:
+    image: "daprio/daprd:latest"
+    command: [ "./daprd", "-app-id", "operation", "-app-port", "80" ]
+    depends_on:
+      - operation
+    network_mode: "service:operation"
+
+  nginxgw:
+    image: onboardingnoissa.azurecr.io/nginxgw
+    build:
+      context: .
+      dockerfile: ApiGateways/nginx/Dockerfile
+    ports:
+      - "80:80"
